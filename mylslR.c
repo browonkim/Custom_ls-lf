@@ -25,9 +25,8 @@ void printDirMembers(char * dirName);
 
 //global variables
 char dirPath[SIZE];
-char prevPath[SIZE];
 char absolutePath[SIZE];
-char absolutePrev[SIZE];
+
 int todo; 
 
 
@@ -88,6 +87,9 @@ void printDirMembers(char * dirName){
     if(dirName == NULL)
         return;
     else{
+        char absolutePrev[SIZE];
+        char prevPath[SIZE];
+
         strcpy(absolutePath,dirName);
         printf("%s:\n", dirPath);
         printf("total %d\n", todo);
@@ -123,7 +125,7 @@ void printDirMembers(char * dirName){
             stat_size = (long long)getStat.st_size;
             pws = getpwuid(getStat.st_uid);
             grp = getgrgid(getStat.st_gid);
-            printf("%s %hd %s %s %lld %s\n",stat_String,stat_nlink,pws->pw_name,grp->gr_name,stat_size,list[i]);
+            printf("%s %hd %s %s\t %lld %s\n",stat_String,stat_nlink,pws->pw_name,grp->gr_name,stat_size,list[i]);
         }
         printf("\n");
         for(i=0;i<list_size;i++){
@@ -134,7 +136,6 @@ void printDirMembers(char * dirName){
             }
         }
         free(list);
-        strcpy(dirPath, prevPath);
         return;
     }
 }
@@ -143,6 +144,9 @@ void help_printDirMembers(char * dirName){
     if(dirName == NULL)
         return;
     else{
+        char absolutePrev[SIZE];
+        char prevPath[SIZE];
+
         strcpy(prevPath, dirPath);
         strcpy(absolutePrev, absolutePath);
         strcat(absolutePath, "/");
@@ -189,7 +193,7 @@ void help_printDirMembers(char * dirName){
             stat_size = (long long)getStat.st_size;
             pws = getpwuid(getStat.st_uid);
             grp = getgrgid(getStat.st_gid);
-            printf("%s %hd %s %s %lld %s\n",stat_String,stat_nlink,pws->pw_name,grp->gr_name,stat_size,list[i]);            strcpy(absolutePath,temp_forPrev);
+            printf("%s %hd %s %s\t %lld %s\n",stat_String,stat_nlink,pws->pw_name,grp->gr_name,stat_size,list[i]);            strcpy(absolutePath,temp_forPrev);
         }
         printf("\n");
         for(i=0;i<list_size;i++){
