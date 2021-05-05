@@ -129,9 +129,10 @@ void help_printDirMembers(char * dirName){
         strcpy(prevPath, dirPath);
         strcat(dirPath, "/");
         strcat(dirPath, dirName);
-        if(chdir(dirName) < 0){
+        /*if(chdir(dirPath) < 0){
             printf("error! can't access directory!\n");
-        }
+            exit(2);
+        }*/
         printf("%s:\n", dirPath);
         printf("total %d\n", todo);
         //반복문을 써서 매개변수로 준 디렉토리의 멤버를 전부 조회한다.
@@ -180,10 +181,10 @@ void help_printDirMembers(char * dirName){
         }
         free(list);
         strcpy(dirPath, prevPath);
-        if(chdir("..") < 0){
+        /*if(chdir("..") < 0){
             printf("fatal error!\n");
             exit(1);
-        }
+        }*/
         return;
     }
 }
