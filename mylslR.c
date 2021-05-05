@@ -12,6 +12,7 @@
 #include <pwd.h>
 #include <sys/types.h>
 #include <grp.h>
+#include <time.h>
 #define SIZE 1024
 
 //helper functions
@@ -112,10 +113,13 @@ void printDirMembers(char * dirName){
         sort(list, list_size);
         int i;      
         char stat_String[] = "----------";
+        time_t t;
+        struct tm lt;
         long long stat_size;
         unsigned short stat_nlink;
         struct passwd *pws;
         struct group *grp;
+        char timebuf[100];
         for(i=0;i<list_size;i++){
             struct stat getStat;
             stat(list[i], &getStat);
@@ -125,7 +129,9 @@ void printDirMembers(char * dirName){
             stat_size = (long long)getStat.st_size;
             pws = getpwuid(getStat.st_uid);
             grp = getgrgid(getStat.st_gid);
-            printf("%s %hd %s %s\t %lld %s\n",stat_String,stat_nlink,pws->pw_name,grp->gr_name,stat_size,list[i]);
+            t = getStat.st_mtime;
+            localtime_r(&t, &lt);
+            printf("%s %hd %s %s\t %3d %2d %6d %15lld %s\n",stat_String,stat_nlink,pws->pw_name,grp->gr_name,lt.tm_mon,lt.tm_mday,lt.tm_year,stat_size,list[i]);
         }
         printf("\n");
         for(i=0;i<list_size;i++){
@@ -177,10 +183,13 @@ void help_printDirMembers(char * dirName){
         int i;      
         char stat_String[] = "----------";
         long long stat_size;
+        time_t t;
+        struct tm lt;
         unsigned short stat_nlink;
         struct passwd *pws;
         struct group *grp;
         char temp_forPrev[SIZE];
+        char timebuf[100];
         for(i=0;i<list_size;i++){
             struct stat getStat;
             strcpy(temp_forPrev, absolutePath);
@@ -193,7 +202,9 @@ void help_printDirMembers(char * dirName){
             stat_size = (long long)getStat.st_size;
             pws = getpwuid(getStat.st_uid);
             grp = getgrgid(getStat.st_gid);
-            printf("%s %hd %s %s\t %lld %s\n",stat_String,stat_nlink,pws->pw_name,grp->gr_name,stat_size,list[i]);            strcpy(absolutePath,temp_forPrev);
+            t = getStat.st_mtime;
+            localtime_r(&t, &lt);
+            printf("%s %hd %s %s\t %3d %2d %6d %15lld %s\n",stat_String,stat_nlink,pws->pw_name,grp->gr_name,lt.tm_mon,lt.tm_mday,lt.tm_year,stat_size,list[i]);
         }
         printf("\n");
         for(i=0;i<list_size;i++){
