@@ -129,13 +129,16 @@ void help_printDirMembers(char * dirName){
         strcpy(prevPath, dirPath);
         strcat(dirPath, "/");
         strcat(dirPath, dirName);
+        if(chdir(dirName) < 0){
+            printf("error! can't access directory!\n");
+        }
         printf("%s:\n", dirPath);
         printf("total %d\n", todo);
         //반복문을 써서 매개변수로 준 디렉토리의 멤버를 전부 조회한다.
         int list_capacity = 50;
         char **list = (char **)malloc(sizeof(char *)*list_capacity);
         int list_size = 0;
-        DIR *dir = opendir(dirPath);
+        DIR *dir = opendir(dirName);
         struct dirent * rdir = NULL;
         while((rdir=readdir(dir))!=NULL){
             if(rdir->d_name[0] == '.') continue;    //숨김파일및디렉토리 . .. .git .gitignore .vim 등등
@@ -177,6 +180,10 @@ void help_printDirMembers(char * dirName){
         }
         free(list);
         strcpy(dirPath, prevPath);
+        if(chdir("..") < 0){
+            printf("fatal error!\n");
+            exit(1);
+        }
         return;
     }
 }
