@@ -134,7 +134,7 @@ void help_printDirMembers(char * dirName){
         int list_capacity = 50;
         char **list = (char **)malloc(sizeof(char *)*list_capacity);
         int list_size = 0;
-        DIR *dir = opendir(dirName);
+        DIR *dir = opendir(dirPath);
         struct dirent * rdir = NULL;
         while((rdir=readdir(dir))!=NULL){
             if(rdir->d_name[0] == '.') continue;    //숨김파일및디렉토리 . .. .git .gitignore .vim 등등
@@ -163,6 +163,7 @@ void help_printDirMembers(char * dirName){
             stat_size = (long long)getStat.st_size;
             printf("%s %hd %lld %s\n",stat_String,stat_nlink,stat_size,list[i]);
         }
+        printf("\n");
         //이후 다시 반복문을 써서 directory에 대해서만 함수 재귀 호출
         //printDirMemebers();
         //이것은 DFS임. Depth First Search
