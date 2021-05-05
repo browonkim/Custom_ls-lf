@@ -9,7 +9,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-
+#include <pwd.h>
+#include <sys/types.h>
+#include <grp.h>
 #define SIZE 1024
 
 //helper functions
@@ -24,7 +26,10 @@ void printDirMembers(char * dirName);
 //global variables
 char dirPath[SIZE];
 char prevPath[SIZE];
+char absolutePath[SIZE];
+char absolutePrev[SIZE];
 int todo; 
+
 
 int main(int argc, char** argv){
     char currentWorkingDir[SIZE];
@@ -62,17 +67,30 @@ void check_permission(char *permissionStatus, struct stat * statBuffer){
     permissionStatus[9] = statBuffer->st_mode & S_IXOTH ? 'x' : '-';
 }
 
+//insertion Sort
 void sort(char ** list, int list_size){
     //sort by name | increasing order
+    char temp[SIZE];
+    int i, j;
+    for(i=1; i<list_size; i++){
+        strcpy(temp, list[i]);
+        j = i-1;
+        while(j >=0 && (strcmp(list[j], temp) == 1)){
+            strcpy(list[j+1], list[j]);
+            j = j-1;
+        }
+        strcpy(list[j+1],temp);
+    }
 }
 
+//DFS
 void printDirMembers(char * dirName){
     if(dirName == NULL)
         return;
     else{
+        strcpy(absolutePath,dirName);
         printf("%s:\n", dirPath);
         printf("total %d\n", todo);
-        //반복문을 써서 매개변수로 준 디렉토리의 멤버를 전부 조회한다.
         int list_capacity = 50;
         char **list = (char **)malloc(sizeof(char *)*list_capacity);
         int list_size = 0;
@@ -89,13 +107,13 @@ void printDirMembers(char * dirName){
                 }
             }
         }
-        //이후 sort함수를 호출하여 이름순으로 정렬한다.
         sort(list, list_size);
-        //각 멤버의 타입/권한 링크수 사용자이름 사용자그룹 파일크기 수정한시각 파일/디렉토리이름
         int i;      
         char stat_String[] = "----------";
         long long stat_size;
         unsigned short stat_nlink;
+        struct passwd *pws;
+        struct group *grp;
         for(i=0;i<list_size;i++){
             struct stat getStat;
             stat(list[i], &getStat);
@@ -103,12 +121,11 @@ void printDirMembers(char * dirName){
             check_permission(stat_String, &getStat);
             stat_nlink = (unsigned short)getStat.st_nlink;
             stat_size = (long long)getStat.st_size;
-            printf("%s %hd %lld %s\n",stat_String,stat_nlink,stat_size,list[i]);
+            pws = getpwuid(getStat.st_uid);
+            grp = getgrgid(getStat.st_gid);
+            printf("%s %hd %s %s %lld %s\n",stat_String,stat_nlink,pws->pw_name,grp->gr_name,stat_size,list[i]);
         }
         printf("\n");
-        //이후 다시 반복문을 써서 directory에 대해서만 함수 재귀 호출
-        //printDirMemebers();
-        //이것은 DFS임. Depth First Search
         for(i=0;i<list_size;i++){
             struct stat getStat;
             stat(list[i], &getStat);
@@ -127,19 +144,18 @@ void help_printDirMembers(char * dirName){
         return;
     else{
         strcpy(prevPath, dirPath);
+        strcpy(absolutePrev, absolutePath);
+        strcat(absolutePath, "/");
+        strcat(absolutePath, dirName);
         strcat(dirPath, "/");
         strcat(dirPath, dirName);
-        /*if(chdir(dirPath) < 0){
-            printf("error! can't access directory!\n");
-            exit(2);
-        }*/
         printf("%s:\n", dirPath);
         printf("total %d\n", todo);
-        //반복문을 써서 매개변수로 준 디렉토리의 멤버를 전부 조회한다.
         int list_capacity = 50;
         char **list = (char **)malloc(sizeof(char *)*list_capacity);
+        //char* list[SIZE] = {NULL};
         int list_size = 0;
-        DIR *dir = opendir(dirName);
+        DIR *dir = opendir(absolutePath);
         struct dirent * rdir = NULL;
         while((rdir=readdir(dir))!=NULL){
             if(rdir->d_name[0] == '.') continue;    //숨김파일및디렉토리 . .. .git .gitignore .vim 등등
@@ -152,39 +168,44 @@ void help_printDirMembers(char * dirName){
                 }
             }
         }
-        //이후 sort함수를 호출하여 이름순으로 정렬한다.
         sort(list, list_size);
         //각 멤버의 타입/권한 링크수 사용자이름 사용자그룹 파일크기 수정한시각 파일/디렉토리이름
         int i;      
         char stat_String[] = "----------";
         long long stat_size;
         unsigned short stat_nlink;
+        struct passwd *pws;
+        struct group *grp;
+        char temp_forPrev[SIZE];
         for(i=0;i<list_size;i++){
             struct stat getStat;
-            stat(list[i], &getStat);
+            strcpy(temp_forPrev, absolutePath);
+            strcat(absolutePath,"/");
+            strcat(absolutePath,list[i]);
+            stat(absolutePath, &getStat);
             check_type(stat_String, &getStat);
             check_permission(stat_String, &getStat);
             stat_nlink = (unsigned short)getStat.st_nlink;
             stat_size = (long long)getStat.st_size;
-            printf("%s %hd %lld %s\n",stat_String,stat_nlink,stat_size,list[i]);
+            pws = getpwuid(getStat.st_uid);
+            grp = getgrgid(getStat.st_gid);
+            printf("%s %hd %s %s %lld %s\n",stat_String,stat_nlink,pws->pw_name,grp->gr_name,stat_size,list[i]);            strcpy(absolutePath,temp_forPrev);
         }
         printf("\n");
-        //이후 다시 반복문을 써서 directory에 대해서만 함수 재귀 호출
-        //printDirMemebers();
-        //이것은 DFS임. Depth First Search
         for(i=0;i<list_size;i++){
             struct stat getStat;
-            stat(list[i], &getStat);
+            strcpy(temp_forPrev, absolutePath);
+            strcat(absolutePath,"/");
+            strcat(absolutePath,list[i]);
+            stat(absolutePath, &getStat);
+            strcpy(absolutePath,temp_forPrev);
             if(S_ISDIR(getStat.st_mode)){
                 help_printDirMembers(list[i]);
             }
         }
         free(list);
+        strcpy(absolutePath, absolutePrev);
         strcpy(dirPath, prevPath);
-        /*if(chdir("..") < 0){
-            printf("fatal error!\n");
-            exit(1);
-        }*/
         return;
     }
 }
