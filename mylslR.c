@@ -131,7 +131,7 @@ void printDirMembers(char * dirName){
             grp = getgrgid(getStat.st_gid);
             t = getStat.st_mtime;
             localtime_r(&t, &lt);
-            printf("%s %hd %s %s\t %3d %2d %6d %15lld %s\n",stat_String,stat_nlink,pws->pw_name,grp->gr_name,lt.tm_mon,lt.tm_mday,lt.tm_year,stat_size,list[i]);
+            printf("%s %hd %s %s %3d %2d %6d %15lld %s\n",stat_String,stat_nlink,pws->pw_name,grp->gr_name,lt.tm_mon,lt.tm_mday,lt.tm_year,stat_size,list[i]);
         }
         printf("\n");
         for(i=0;i<list_size;i++){
@@ -204,7 +204,7 @@ void help_printDirMembers(char * dirName){
             grp = getgrgid(getStat.st_gid);
             t = getStat.st_mtime;
             localtime_r(&t, &lt);
-            printf("%s %hd %s %s\t %3d %2d %6d %15lld %s\n",stat_String,stat_nlink,pws->pw_name,grp->gr_name,lt.tm_mon,lt.tm_mday,lt.tm_year,stat_size,list[i]);
+            printf("%s %hd %s %s %3d %2d %6d %15lld %s\n",stat_String,stat_nlink,pws->pw_name,grp->gr_name,lt.tm_mon,lt.tm_mday,lt.tm_year,stat_size,list[i]);
         }
         printf("\n");
         for(i=0;i<list_size;i++){
