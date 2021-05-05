@@ -105,6 +105,7 @@ void printDirMembers(char * dirName){
             stat_size = (long long)getStat.st_size;
             printf("%s %hd %lld %s\n",stat_String,stat_nlink,stat_size,list[i]);
         }
+        printf("\n");
         //이후 다시 반복문을 써서 directory에 대해서만 함수 재귀 호출
         //printDirMemebers();
         //이것은 DFS임. Depth First Search
