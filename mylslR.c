@@ -91,7 +91,7 @@ void sort(char ** list, int list_size){
     for(i=1; i<list_size; i++){
         strcpy(temp, list[i]);
         j = i-1;
-        while(j >=0 && (strcmp(list[j], temp) == 1)){
+        while(j >=0 && (compare(list[j], temp) == 1)){
             strcpy(list[j+1], list[j]);
             j = j-1;
         }
@@ -110,10 +110,15 @@ void printDirMembers(char * dirName){
         strcpy(absolutePath,dirName);
         printf("%s:\n", dirPath);
         printf("total %d\n", todo);
+        DIR *dir = opendir(dirName);
+        if(dir == NULL){
+            printf("ERROR! I GUESS TAHT IS THE PERMISSON ERROR!\n");
+            exit(1);
+        }
         int list_capacity = 50;
         char **list = (char **)malloc(sizeof(char *)*list_capacity);
         int list_size = 0;
-        DIR *dir = opendir(dirName);
+        
         struct dirent * rdir = NULL;
         while((rdir=readdir(dir))!=NULL){
             if(rdir->d_name[0] == '.') continue;    //숨김파일및디렉토리 . .. .git .gitignore .vim 등등
@@ -179,12 +184,16 @@ void help_printDirMembers(char * dirName){
         strcat(dirPath, dirName);
         printf("%s:\n", dirPath);
         printf("total %d\n", todo);
+        DIR *dir = opendir(absolutePath);
+        if(dir == NULL){
+            printf("ERROR! I GUESS TAHT IS THE PERMISSON ERROR!\n");
+            exit(1);
+        }
         int list_capacity = 50;
         char **list = (char **)malloc(sizeof(char *)*list_capacity);
         if(list == NULL){printf("error!\n");exit(1);}
         //char* list[SIZE] = {NULL};
         int list_size = 0;
-        DIR *dir = opendir(absolutePath);
         struct dirent * rdir = NULL;
         while((rdir=readdir(dir))!=NULL){
             if(rdir->d_name[0] == '.') continue;    //숨김파일및디렉토리 . .. .git .gitignore .vim 등등
