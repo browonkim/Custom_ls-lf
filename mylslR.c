@@ -87,16 +87,16 @@ int compare(char* s1, char* s2){
 void sort(char ** list, int list_size){
     //sort by name | increasing order
     printf("debug: [Sorting]\t list size = %d\n",list_size);
-    char temp[SIZE];
+    char* key;
     int i, j;
     for(i=1; i<list_size; i++){
-        strcpy(temp, list[i]);
+        key = list[i];       //key = list[i];
         j = i-1;
-        while(j >=0 && (strcmp(list[j], temp) == 1)){
-            strcpy(list[j+1], list[j]);
+        while(j >=0 && (strcmp(list[j], key) == 1)){
+            list[j+1] = list[j];     //list[j+1] = list[j]
             j = j-1;
         }
-        strcpy(list[j+1],temp);
+        list[j+1] = key;
     }
     for(i=0;i<list_size;i++){
         printf("%s, ",list[i]);
