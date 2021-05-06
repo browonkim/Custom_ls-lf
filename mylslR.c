@@ -130,7 +130,7 @@ void printDirMembers(char * dirName){
                 list_size++;
                 if(list_size >= list_capacity){
                     list_capacity *= 2;
-                    if(list=realloc(list, sizeof(char *)*list_capacity) == NULL)exit(1);
+                    if((list=realloc(list, sizeof(char *)*list_capacity)) == NULL)exit(1);
                 }
             }
         }
