@@ -163,6 +163,7 @@ void help_printDirMembers(char * dirName){
         printf("total %d\n", todo);
         int list_capacity = 50;
         char **list = (char **)malloc(sizeof(char *)*list_capacity);
+        if(list == NULL){printf("error!\n");exit(1);}
         //char* list[SIZE] = {NULL};
         int list_size = 0;
         DIR *dir = opendir(absolutePath);
@@ -196,6 +197,7 @@ void help_printDirMembers(char * dirName){
             strcat(absolutePath,"/");
             strcat(absolutePath,list[i]);
             stat(absolutePath, &getStat);
+            strcpy(absolutePath, temp_forPrev);
             check_type(stat_String, &getStat);
             check_permission(stat_String, &getStat);
             stat_nlink = (unsigned short)getStat.st_nlink;
