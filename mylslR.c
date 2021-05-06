@@ -86,7 +86,6 @@ int compare(char* s1, char* s2){
 //insertion Sort
 void sort(char ** list, int list_size){
     //sort by name | increasing order
-    printf("debug: [Sorting]\t list size = %d\n",list_size);
     char* key;
     int i, j;
     for(i=1; i<list_size; i++){
@@ -101,7 +100,6 @@ void sort(char ** list, int list_size){
     for(i=0;i<list_size;i++){
         printf("%s, ",list[i]);
     }
-    printf("\n");
 }
 
 //DFS
@@ -132,7 +130,7 @@ void printDirMembers(char * dirName){
                 list_size++;
                 if(list_size >= list_capacity){
                     list_capacity *= 2;
-                    if(realloc(list, sizeof(char *)*list_capacity) == NULL)exit(1);
+                    if(list=realloc(list, sizeof(char *)*list_capacity) == NULL)exit(1);
                 }
             }
         }
