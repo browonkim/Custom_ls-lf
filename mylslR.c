@@ -86,6 +86,7 @@ int compare(char* s1, char* s2){
 //insertion Sort
 void sort(char ** list, int list_size){
     //sort by name | increasing order
+    printf("debug: [Sorting]\t list size = %d\n",list_size);
     char temp[SIZE];
     int i, j;
     for(i=1; i<list_size; i++){
@@ -97,6 +98,10 @@ void sort(char ** list, int list_size){
         }
         strcpy(list[j+1],temp);
     }
+    for(i=0;i<list_size;i++){
+        printf("%s, ",list[i]);
+    }
+    printf("\n");
 }
 
 //DFS
