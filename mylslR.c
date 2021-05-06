@@ -154,7 +154,13 @@ void printDirMembers(char * dirName){
             stat_nlink = (unsigned short)getStat.st_nlink;
             stat_size = (long long)getStat.st_size;
             pws = getpwuid(getStat.st_uid);
+            if(pws == NULL){
+                continue;
+            }
             grp = getgrgid(getStat.st_gid);
+            if(grp == NULL){
+                continue;
+            }
             t = getStat.st_mtime;
             localtime_r(&t, &lt);
             strftime(timebuf, sizeof(timebuf), "%Y-%m-%d %H:%M", &lt);
@@ -234,9 +240,9 @@ void help_printDirMembers(char * dirName){
             stat_nlink = (unsigned short)getStat.st_nlink;
             stat_size = (long long)getStat.st_size;
             pws = getpwuid(getStat.st_uid);
-            if(pws == NULL){printf("ERROR!\n");exit(1);}
+            if(pws == NULL){continue;}
             grp = getgrgid(getStat.st_gid);
-            if(grp == NULL){printf("ERROR!\n");exit(1);}
+            if(grp == NULL){continue;}
             t = getStat.st_mtime;
             localtime_r(&t, &lt);
             strftime(timebuf, sizeof(timebuf), "%Y-%m-%d %H:%M", &lt);
