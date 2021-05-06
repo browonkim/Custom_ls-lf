@@ -213,8 +213,8 @@ void help_printDirMembers(char * dirName){
         time_t t;
         struct tm lt;
         unsigned short stat_nlink;
-        struct passwd *pws;
-        struct group *grp;
+        struct passwd *pws = NULL;
+        struct group *grp = NULL;
         char temp_forPrev[SIZE];
         char timebuf[100];
         for(i=0;i<list_size;i++){
@@ -229,7 +229,9 @@ void help_printDirMembers(char * dirName){
             stat_nlink = (unsigned short)getStat.st_nlink;
             stat_size = (long long)getStat.st_size;
             pws = getpwuid(getStat.st_uid);
+            if(pws == NULL){printf("ERROR!\n");exit(1);}
             grp = getgrgid(getStat.st_gid);
+            if(grp == NULL){printf("ERROR!\n");exit(1);}
             t = getStat.st_mtime;
             localtime_r(&t, &lt);
             strftime(timebuf, sizeof(timebuf), "%Y-%m-%d %H:%M", &lt);
