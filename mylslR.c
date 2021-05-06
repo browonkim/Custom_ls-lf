@@ -67,6 +67,19 @@ void check_permission(char *permissionStatus, struct stat * statBuffer){
     permissionStatus[9] = statBuffer->st_mode & S_IXOTH ? 'x' : '-';
 }
 
+int compare(char* s1, char* s2){
+    //-_. compare
+    char buf_s1[SIZE];
+    char buf_s2[SIZE];
+    char *temp_s1 = strtok(s1, "-_.");
+    strcpy(buf_s1, temp_s1);
+    while(temp_s1 != NULL){temp_s1 = strtok(NULL, "-_."); strcat(buf_s1, temp_s1);}
+    char *temp_s2 = strtok(s2,"-_.");
+    strcpy(buf_s2, temp_s2);
+    while(temp_s2 != NULL){temp_s2 = strtok(NULL, "-_."); strcat(buf_s2, temp_s2);}
+    return strcmp(buf_s1, buf_s2);
+}
+
 //insertion Sort
 void sort(char ** list, int list_size){
     //sort by name | increasing order
@@ -75,7 +88,7 @@ void sort(char ** list, int list_size){
     for(i=1; i<list_size; i++){
         strcpy(temp, list[i]);
         j = i-1;
-        while(j >=0 && (strcmp(list[j], temp) == 1)){
+        while(j >=0 && (compare(list[j], temp) == 1)){
             strcpy(list[j+1], list[j]);
             j = j-1;
         }
@@ -133,7 +146,7 @@ void printDirMembers(char * dirName){
             localtime_r(&t, &lt);
             strftime(timebuf, sizeof(timebuf), "%Y-%m-%d %H:%M", &lt);
             //각 멤버의 타입/권한 링크수 사용자이름 사용자그룹 파일크기 수정한시각 파일/디렉토리이름
-            printf("%s %hd %s %s %10lld %s %s\n", stat_String, stat_nlink, pws->pw_name, grp->gr_name, stat_size, timebuf, list[i]);
+            printf("%s %2hd %s %s %10lld %s %s\n", stat_String, stat_nlink, pws->pw_name, grp->gr_name, stat_size, timebuf, list[i]);
         }
         printf("\n");
         for(i=0;i<list_size;i++){
@@ -209,7 +222,7 @@ void help_printDirMembers(char * dirName){
             localtime_r(&t, &lt);
             strftime(timebuf, sizeof(timebuf), "%Y-%m-%d %H:%M", &lt);
             //각 멤버의 타입/권한 링크수 사용자이름 사용자그룹 파일크기 수정한시각 파일/디렉토리이름
-            printf("%s %hd %s %s %10lld %s %s\n", stat_String, stat_nlink, pws->pw_name, grp->gr_name, stat_size, timebuf, list[i]);
+            printf("%s %2hd %s %s %10lld %s %s\n", stat_String, stat_nlink, pws->pw_name, grp->gr_name, stat_size, timebuf, list[i]);
             }
         printf("\n");
         for(i=0;i<list_size;i++){
