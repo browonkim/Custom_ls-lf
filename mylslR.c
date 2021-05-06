@@ -75,11 +75,11 @@ int compare(char* s1, char* s2){
     strcpy(temp, s1);
     char *temp_s1 = strtok(temp, "-_.");
     strcpy(buf_s1, temp_s1);
-    while(temp_s1 != NULL){temp_s1 = strtok(NULL, "-_."); strcat(buf_s1, temp_s1);}
+    while(temp_s1 != NULL){temp_s1 = strtok(NULL, "-_."); if(temp_s1 != NULL)strcat(buf_s1, temp_s1);}
     strcpy(temp, s2);
     char *temp_s2 = strtok(temp,"-_.");
     strcpy(buf_s2, temp_s2);
-    while(temp_s2 != NULL){temp_s2 = strtok(NULL, "-_."); strcat(buf_s2, temp_s2);}
+    while(temp_s2 != NULL){temp_s2 = strtok(NULL, "-_."); if(temp_s2 != NULL)strcat(buf_s2, temp_s2);}
     return strcmp(buf_s1, buf_s2);
 }
 
