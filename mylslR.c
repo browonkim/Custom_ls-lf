@@ -91,7 +91,7 @@ void sort(char ** list, int list_size){
     for(i=1; i<list_size; i++){
         strcpy(temp, list[i]);
         j = i-1;
-        while(j >=0 && (compare(list[j], temp) == 1)){
+        while(j >=0 && (strcmp(list[j], temp) == 1)){
             strcpy(list[j+1], list[j]);
             j = j-1;
         }
