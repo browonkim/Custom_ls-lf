@@ -69,22 +69,17 @@ void check_permission(char *permissionStatus, struct stat * statBuffer){
 
 int compare(char* s1, char* s2){
     //-_. compare
-    printf("is segmentation fault?!\n");
     char buf_s1[SIZE];
     char buf_s2[SIZE];
-    printf("is segmentation fault?!\n");
-    char *temp_s1 = strtok(s1, "-_.");
-    printf("is segmentation fault?!\n");
+    char temp[SIZE];
+    strcpy(temp, s1);
+    char *temp_s1 = strtok(temp, "-_.");
     strcpy(buf_s1, temp_s1);
-    printf("is segmentation fault?!\n");
     while(temp_s1 != NULL){temp_s1 = strtok(NULL, "-_."); strcat(buf_s1, temp_s1);}
-    printf("is segmentation fault?!\n");
-    char *temp_s2 = strtok(s2,"-_.");
-    printf("is segmentation fault?!\n");
+    strcpy(temp, s2);
+    char *temp_s2 = strtok(temp,"-_.");
     strcpy(buf_s2, temp_s2);
-    printf("is segmentation fault?!\n");
     while(temp_s2 != NULL){temp_s2 = strtok(NULL, "-_."); strcat(buf_s2, temp_s2);}
-    printf("is segmentation fault?!\n");
     return strcmp(buf_s1, buf_s2);
 }
 
