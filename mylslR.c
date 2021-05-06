@@ -154,7 +154,7 @@ void printDirMembers(char * dirName){
             localtime_r(&t, &lt);
             strftime(timebuf, sizeof(timebuf), "%Y-%m-%d %H:%M", &lt);
             //각 멤버의 타입/권한 링크수 사용자이름 사용자그룹 파일크기 수정한시각 파일/디렉토리이름
-            printf("%s %2hd %s %s %10lld %s %s\n", stat_String, stat_nlink, pws->pw_name, grp->gr_name, stat_size, timebuf, list[i]);
+            printf("%s %3hd %s %s %10lld %s %s\n", stat_String, stat_nlink, pws->pw_name, grp->gr_name, stat_size, timebuf, list[i]);
         }
         printf("\n");
         for(i=0;i<list_size;i++){
