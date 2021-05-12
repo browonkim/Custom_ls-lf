@@ -213,16 +213,15 @@ void printDirMembers(char *dirName)
         //각 멤버의 타입/권한 링크수 사용자이름 사용자그룹 파일크기 수정한시각 파일/디렉토리이름
         printf("%s %3hd %s %s %10lld %s %s", stat_String, stat_nlink, pws->pw_name, grp->gr_name, stat_size, timebuf, list[i]);
         if(S_ISLNK(getStat.st_mode)){
+            int readSize;
             char linkSource[SIZE];
-            if(readlink(temp_forAbsolute, linkSource, SIZE) > 0){
+            if((readSize = readlink(temp_forAbsolute, linkSource, SIZE)) > 0){
+                linkSource[readSize] = '\0';
                 printf(" -> %s", linkSource);
             }
             else{
                 printf("error!");
             }
-        }
-        else{
-            printf("not link");
         }
         printf("\n");
     }
