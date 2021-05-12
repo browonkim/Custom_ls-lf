@@ -214,8 +214,12 @@ void printDirMembers(char *dirName)
         printf("%s %3hd %s %s %10lld %s %s", stat_String, stat_nlink, pws->pw_name, grp->gr_name, stat_size, timebuf, list[i]);
         if(S_ISLNK(getStat.st_mode)){
             char linkSource[SIZE];
-            readlink(temp_forAbsolute, linkSource, SIZE);
-            printf(" -> %s", linkSource);
+            if(readlink(temp_forAbsolute, linkSource, SIZE) > 0){
+                printf(" -> %s", linkSource);
+            }
+            else{
+                printf("error!");
+            }
         }
         printf("\n");
     }
