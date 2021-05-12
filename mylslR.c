@@ -221,16 +221,6 @@ void printDirMembers(char *dirName)
         //그리고 소유자 이름이 같다면, 소유자에게 x 권한이 있는지 확인
         //x권한이 없다면 opendir이 불가능할테니 무시
         //소유자이름 -> 그룹이름 -> Others 조회 
-        pws = getpwuid(getStat.st_uid);
-        if (pws == NULL)
-        {
-            continue;
-        }
-        grp = getgrgid(getStat.st_gid);
-        if (grp == NULL)
-        {
-            continue;
-        }
         if (S_ISDIR(getStat.st_mode))
         {
             printDirMembers(temp_forAbsolute);
