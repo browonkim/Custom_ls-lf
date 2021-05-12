@@ -133,9 +133,7 @@ void printDirMembers(char *dirName)
         strcat(dirPath, "/");
         strcat(dirPath, dirName);
     }
-
-    printf("%s:\n", dirPath);
-    printf("total %d\n", todo);
+    long long total = 0;
 
     DIR *dir = opendir(absolutePath);
     if (dir == NULL)
@@ -156,7 +154,8 @@ void printDirMembers(char *dirName)
 
     int list_size = 0;
     struct dirent *rdir = NULL;
-
+    char forCalcBlock[SIZE];
+    struct stat forCalcStat;
     while ((rdir = readdir(dir)) != NULL)
     {
         if (rdir->d_name[0] == '.')
@@ -165,6 +164,11 @@ void printDirMembers(char *dirName)
         {
             list[list_size] = rdir->d_name;
             list_size++;
+            strcpy(forCalcBlock, absolutePath);
+            strcat(forCalcBlock, "/");
+            strcat(forCalcBlock, rdir->d_name);
+            lstat(forCalcBlock, &forCalcStat);
+            total += (long long) forCalcStat.st_blocks;
             if (list_size >= list_capacity)
             {
                 list_capacity *= 2;
@@ -173,7 +177,10 @@ void printDirMembers(char *dirName)
             }
         }
     }
-
+    
+    printf("%s:\n", dirPath);
+    printf("total %lld\n", total);
+    
     sort(list, list_size);
 
     int i;
