@@ -168,7 +168,7 @@ void printDirMembers(char *dirName)
             strcat(forCalcBlock, "/");
             strcat(forCalcBlock, rdir->d_name);
             lstat(forCalcBlock, &forCalcStat);
-            total += (long long) forCalcStat.st_blocks;
+            total += (long long) (forCalcStat.st_blocks / 2);
             if (list_size >= list_capacity)
             {
                 list_capacity *= 2;
