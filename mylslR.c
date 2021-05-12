@@ -221,6 +221,9 @@ void printDirMembers(char *dirName)
                 printf("error!");
             }
         }
+        else{
+            printf("not link");
+        }
         printf("\n");
     }
     printf("\n");
