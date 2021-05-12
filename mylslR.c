@@ -13,6 +13,7 @@
 #include <sys/types.h>
 #include <grp.h>
 #include <time.h>
+#include <ctype.h>
 #define SIZE 1024
 
 //helper functions
@@ -27,12 +28,12 @@ void printDirMembers(char *dirName);
 //global variables
 char dirPath[SIZE];
 char absolutePath[SIZE];
-
+char myUserName[SIZE];
 int todo;
 
 int main(int argc, char **argv)
 {
-
+    getlogin_r(myUserName, SIZE); 
     printDirMembers(NULL);
     return 0;
 }
@@ -71,47 +72,33 @@ void check_permission(char *permissionStatus, struct stat *statBuffer)
 
 int compare(char *s1, char *s2)
 {
-    //-_. compare
-    char buf_s1[SIZE];
-    char buf_s2[SIZE];
-    char temp[SIZE];
-    strcpy(temp, s1);
-    char *temp_s1 = strtok(temp, "-_.");
-    strcpy(buf_s1, temp_s1);
-    while (temp_s1 != NULL)
-    {
-        temp_s1 = strtok(NULL, "-_.");
-        if (temp_s1 != NULL)
-            strcat(buf_s1, temp_s1);
+    int s1_length = strlen(s1);
+    int s2_length = strlen(s2);
+    int min = s1_length < s2_length ? s1_length : s2_length;
+    int i, result;
+    for(i=0;i<min;i++){
+        if(tolower(s1[i]) > tolower(s2[i])){
+            return 1;
+        }
+        else if(tolower(s1[i]) < tolower(s2[i])){
+            return -1;
+        }
     }
-    strcpy(temp, s2);
-    char *temp_s2 = strtok(temp, "-_.");
-    strcpy(buf_s2, temp_s2);
-    while (temp_s2 != NULL)
-    {
-        temp_s2 = strtok(NULL, "-_.");
-        if (temp_s2 != NULL)
-            strcat(buf_s2, temp_s2);
-    }
-    return strcmp(buf_s1, buf_s2);
+    return 0;
 }
 
 //insertion Sort
-void sort(char **list, int list_size)
-{
-    //sort by name | increasing order
-    char *key;
+void sort(char** list, int list_size){
     int i, j;
-    for (i = 1; i < list_size; i++)
-    {
-        key = list[i]; //key = list[i];
-        j = i - 1;
-        while (j >= 0 && (strcmp(list[j], key) == 1))
-        {
-            list[j + 1] = list[j]; //list[j+1] = list[j]
-            j = j - 1;
+    char* key;
+    for(i=1;i<list_size;i++){
+        key = list[i];
+        j = i-1;
+        while(j>=0 && compare(list[j], key)==1){
+            list[j+1] = list[j];
+            j = j-1;
         }
-        list[j + 1] = key;
+        list[j+1] = key;
     }
 }
 
@@ -219,7 +206,8 @@ void printDirMembers(char *dirName)
         localtime_r(&t, &lt);
         strftime(timebuf, sizeof(timebuf), "%Y-%m-%d %H:%M", &lt);
         //각 멤버의 타입/권한 링크수 사용자이름 사용자그룹 파일크기 수정한시각 파일/디렉토리이름
-        printf("%s %3hd %s %s %10lld %s %s\n", stat_String, stat_nlink, pws->pw_name, grp->gr_name, stat_size, timebuf, list[i]);
+        printf("%s %3hd %s %s %10lld %s %s", stat_String, stat_nlink, pws->pw_name, grp->gr_name, stat_size, timebuf, list[i]);
+        printf("\n");
     }
     printf("\n");
     for (i = 0; i < list_size; i++)
@@ -229,9 +217,27 @@ void printDirMembers(char *dirName)
         strcat(temp_forAbsolute, "/");
         strcat(temp_forAbsolute, list[i]);
         stat(temp_forAbsolute, &getStat);
+        //디렉토리의 소유자이름(혹은 id), 그룹이름과 현재유저,유저의그룹과 비교를 하자
+        //그리고 소유자 이름이 같다면, 소유자에게 x 권한이 있는지 확인
+        //x권한이 없다면 opendir이 불가능할테니 무시
+        //소유자이름 -> 그룹이름 -> Others 조회 
+        pws = getpwuid(getStat.st_uid);
+        if (pws == NULL)
+        {
+            continue;
+        }
+        grp = getgrgid(getStat.st_gid);
+        if (grp == NULL)
+        {
+            continue;
+        }
         if (S_ISDIR(getStat.st_mode))
         {
-            printDirMembers(list[i]);
+            if(strcmp(myUserName, pws->pw_name) == 0){
+                if(getStat.st_mode & S_IXUSR){
+                    printDirMembers(list[i]);
+                }
+            }
         }
     }
     free(list);
