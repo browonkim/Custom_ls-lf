@@ -223,7 +223,7 @@ void printDirMembers(char *dirName)
         //소유자이름 -> 그룹이름 -> Others 조회 
         if (S_ISDIR(getStat.st_mode))
         {
-            printDirMembers(temp_forAbsolute);
+            printDirMembers(list[i]);
         }
     }
     free(list);
