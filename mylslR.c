@@ -192,7 +192,7 @@ void printDirMembers(char *dirName)
         strcpy(temp_forAbsolute, absolutePath);
         strcat(temp_forAbsolute, "/");
         strcat(temp_forAbsolute, list[i]);
-        stat(temp_forAbsolute, &getStat);
+        lstat(temp_forAbsolute, &getStat);
         check_type(stat_String, &getStat);
         check_permission(stat_String, &getStat);
         stat_nlink = (unsigned short)getStat.st_nlink;
@@ -233,7 +233,7 @@ void printDirMembers(char *dirName)
         strcpy(temp_forAbsolute, absolutePath);
         strcat(temp_forAbsolute, "/");
         strcat(temp_forAbsolute, list[i]);
-        stat(temp_forAbsolute, &getStat);
+        lstat(temp_forAbsolute, &getStat);
         //디렉토리의 소유자이름(혹은 id), 그룹이름과 현재유저,유저의그룹과 비교를 하자
         //그리고 소유자 이름이 같다면, 소유자에게 x 권한이 있는지 확인
         //x권한이 없다면 opendir이 불가능할테니 무시
