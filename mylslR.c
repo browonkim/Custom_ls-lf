@@ -84,7 +84,12 @@ int compare(char *s1, char *s2)
             return -1;
         }
     }
-    return 0;
+    if(min == s1_length && s1_length != s2_length)
+        return -1;
+    else if(min == s2_length && s1_length != s2_length)
+        return 1;
+    else
+        return 0;
 }
 
 //insertion Sort
@@ -207,6 +212,11 @@ void printDirMembers(char *dirName)
         strftime(timebuf, sizeof(timebuf), "%Y-%m-%d %H:%M", &lt);
         //각 멤버의 타입/권한 링크수 사용자이름 사용자그룹 파일크기 수정한시각 파일/디렉토리이름
         printf("%s %3hd %s %s %10lld %s %s", stat_String, stat_nlink, pws->pw_name, grp->gr_name, stat_size, timebuf, list[i]);
+        if(S_ISLNK(getStat.st_mode)){
+            char linkSource[SIZE];
+            readlink(temp_forAbsolute, linkSource, SIZE);
+            printf(" -> %s", linkSource);
+        }
         printf("\n");
     }
     printf("\n");
