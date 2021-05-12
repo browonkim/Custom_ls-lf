@@ -233,11 +233,7 @@ void printDirMembers(char *dirName)
         }
         if (S_ISDIR(getStat.st_mode))
         {
-            if(strcmp(myUserName, pws->pw_name) == 0){
-                if(getStat.st_mode & S_IXUSR){
-                    printDirMembers(list[i]);
-                }
-            }
+            printDirMembers(temp_forAbsolute);
         }
     }
     free(list);
