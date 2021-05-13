@@ -14,6 +14,7 @@
 #include <grp.h>
 #include <time.h>
 #include <ctype.h>
+#include <wchar.h>
 #include <locale.h>
 #define SIZE 1024
 #define LINUXBLOCKSIZE 1024
@@ -26,7 +27,6 @@ void sort(char **list, int list_size);
 int isInGroup(char *username, char **groupList);
 //primary function
 void printDirMembers(char *dirName);
-
 //global variables
 char dirPath[SIZE];
 char absolutePath[SIZE];
@@ -34,7 +34,7 @@ char myUserName[SIZE];
 
 int main(int argc, char **argv)
 {
-    setlocale(LC_ALL, "en_US.UTF-8");
+    setlocale(LC_ALL, "");
     getlogin_r(myUserName, SIZE);
     printDirMembers(NULL);
     return 0;
@@ -282,11 +282,11 @@ void printDirMembers(char *dirName)
         }
         if (S_ISDIR(getStat.st_mode))
         {
-            if (strcmp(pws->pw_name, myUserName) == 0 && getStat.st_mode & S_IXUSR)
+            if (strcmp(pws->pw_name, myUserName) == 0 && getStat.st_mode & S_IRUSR)
                 flag = 1;
-            else if (getStat.st_mode & S_IXOTH)
+            else if (getStat.st_mode & S_IROTH)
                 flag = 1;
-            else if (isInGroup(myUserName, grp->gr_mem))
+            else if (isInGroup(myUserName, grp->gr_mem) && getStat.st_mode & S_IRGRP)
                 flag = 1;
             if (flag == 1)
             {
