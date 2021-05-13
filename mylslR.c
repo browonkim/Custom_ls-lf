@@ -34,7 +34,7 @@ char myUserName[SIZE];
 
 int main(int argc, char **argv)
 {
-    setlocale(LC_ALL, "en_US.utf8");
+    setlocale(LC_ALL, "en_US.UTF-8");
     getlogin_r(myUserName, SIZE);
     printDirMembers(NULL);
     return 0;
