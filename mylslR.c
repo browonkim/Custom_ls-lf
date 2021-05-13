@@ -134,7 +134,7 @@ void printDirMembers(char *dirName, int executePermission)
 {
     char absolutePrev[SIZE];
     char prevPath[SIZE];
-
+    
     if (dirName == NULL)
     {
         strcpy(prevPath, "");
@@ -155,6 +155,7 @@ void printDirMembers(char *dirName, int executePermission)
         strcat(dirPath, "/");
         strcat(dirPath, dirName);
     }
+    char tempForDirPath[SIZE];
     long long total = 0;
 
     DIR *dir = opendir(absolutePath);
@@ -197,7 +198,10 @@ void printDirMembers(char *dirName, int executePermission)
             }
             else
             {
-                printf("ls: cannot access %s: Permission denied\n", forCalcBlock);
+                strcpy(tempForDirPath, dirPath);
+                strcat(tempForDirPath, "/");
+                strcat(tempForDirPath, rdir->d_name);
+                printf("ls: cannot access %s: Permission denied\n", tempForDirPath);
             }
             if (list_size >= list_capacity)
             {
@@ -315,7 +319,10 @@ void printDirMembers(char *dirName, int executePermission)
             }
             else
             {
-                printf("ls: cannot open directory %s: Permission denied\n", temp_forAbsolute);
+                strcpy(tempForDirPath, dirPath);
+                strcat(tempForDirPath, "/");
+                strcat(tempForDirPath, list[i]);
+                printf("ls: cannot open directory %s: Permission denied\n", tempForDirPath);
             }
         }
     }
