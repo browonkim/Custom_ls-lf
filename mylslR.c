@@ -14,10 +14,12 @@
 #include <grp.h>
 #include <time.h>
 #include <ctype.h>
-#include <wchar.h>
 #include <locale.h>
 #define SIZE 1024
 #define LINUXBLOCKSIZE 1024
+
+//broken character... -> error...
+#include <wchar.h>
 
 //helper functions
 void check_permission(char *permissionStatus, struct stat *statBuffer);
@@ -31,6 +33,7 @@ void printDirMembers(char *dirName);
 char dirPath[SIZE];
 char absolutePath[SIZE];
 char myUserName[SIZE];
+int prevPermission;
 
 int main(int argc, char **argv)
 {
@@ -291,6 +294,9 @@ void printDirMembers(char *dirName)
             if (flag == 1)
             {
                 printDirMembers(list[i]);
+            }
+            else{
+                printf("ls: cannot open directory %s: Permission denied\n", list[i]);
             }
         }
     }
