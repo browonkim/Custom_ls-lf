@@ -18,7 +18,6 @@
 #define SIZE 1024
 #define LINUXBLOCKSIZE 1024
 
-//broken character... -> error...
 #include <wchar.h>
 
 //helper functions
@@ -28,18 +27,17 @@ int compare(char *s1, char *s2);
 void sort(char **list, int list_size);
 int isInGroup(char *username, char **groupList);
 //primary function
-void printDirMembers(char *dirName);
+void printDirMembers(char *dirName, int executePermission);
 //global variables
 char dirPath[SIZE];
 char absolutePath[SIZE];
 char myUserName[SIZE];
-int prevPermission;
 
 int main(int argc, char **argv)
 {
     setlocale(LC_ALL, "");
     getlogin_r(myUserName, SIZE);
-    printDirMembers(NULL);
+    printDirMembers(NULL, 1);
     return 0;
 }
 
@@ -121,7 +119,7 @@ void sort(char **list, int list_size)
 int isInGroup(char *username, char **groupList)
 {
     int i;
-    for(i=0;groupList[i]!=NULL;i++)
+    for (i = 0; groupList[i] != NULL; i++)
     {
         if (strcmp(username, groupList[i]) == 0)
         {
@@ -132,7 +130,7 @@ int isInGroup(char *username, char **groupList)
 }
 
 //DFS
-void printDirMembers(char *dirName)
+void printDirMembers(char *dirName, int executePermission)
 {
     char absolutePrev[SIZE];
     char prevPath[SIZE];
@@ -162,7 +160,7 @@ void printDirMembers(char *dirName)
     DIR *dir = opendir(absolutePath);
     if (dir == NULL)
     {
-        printf("ERROR! I GUESS TAHT IS THE PERMISSON ERROR!\n");
+        printf("ERROR!! I GUESS THIS IS FILE NAME ERROR!\n");
         strcpy(absolutePath, absolutePrev);
         strcpy(dirPath, prevPath);
         return;
@@ -180,6 +178,7 @@ void printDirMembers(char *dirName)
     struct dirent *rdir = NULL;
     char forCalcBlock[SIZE];
     struct stat forCalcStat;
+    printf("%s:\n", dirPath);
     while ((rdir = readdir(dir)) != NULL)
     {
         if (rdir->d_name[0] == '.')
@@ -191,8 +190,15 @@ void printDirMembers(char *dirName)
             strcpy(forCalcBlock, absolutePath);
             strcat(forCalcBlock, "/");
             strcat(forCalcBlock, rdir->d_name);
-            lstat(forCalcBlock, &forCalcStat);
-            total += (long long)(forCalcStat.st_blocks / 2); //st_blocks : 512byte blocks Centos/Ubuntu : 1024byte blocks
+            if (executePermission)
+            {
+                lstat(forCalcBlock, &forCalcStat);
+                total += (long long)(forCalcStat.st_blocks / 2); //st_blocks : 512byte blocks Centos/Ubuntu : 1024byte blocks
+            }
+            else
+            {
+                printf("ls: cannot access %s: Permission denied\n", forCalcBlock);
+            }
             if (list_size >= list_capacity)
             {
                 list_capacity *= 2;
@@ -202,7 +208,6 @@ void printDirMembers(char *dirName)
         }
     }
 
-    printf("%s:\n", dirPath);
     printf("total %lld\n", total);
 
     sort(list, list_size);
@@ -217,57 +222,63 @@ void printDirMembers(char *dirName)
     struct group *grp = NULL;
     char temp_forAbsolute[SIZE];
     char timebuf[100];
-    for (i = 0; i < list_size; i++)
+    if (executePermission)
     {
-        if(list[i][0]<33 || list[i][0] > 126)
-            continue;
-        struct stat getStat;
-        strcpy(temp_forAbsolute, absolutePath);
-        strcat(temp_forAbsolute, "/");
-        strcat(temp_forAbsolute, list[i]);
-        lstat(temp_forAbsolute, &getStat);
-        check_type(stat_String, &getStat);
-        check_permission(stat_String, &getStat);
-        stat_nlink = (unsigned short)getStat.st_nlink;
-        stat_size = (long long)getStat.st_size;
-        pws = getpwuid(getStat.st_uid);
-        if (pws == NULL)
+        for (i = 0; i < list_size; i++)
         {
-            continue;
-        }
-        grp = getgrgid(getStat.st_gid);
-        if (grp == NULL)
-        {
-            continue;
-        }
-        t = getStat.st_mtime;
-        localtime_r(&t, &lt);
-        strftime(timebuf, sizeof(timebuf), "%Y-%m-%d %H:%M", &lt);
-        //각 멤버의 타입/권한 링크수 사용자이름 사용자그룹 파일크기 수정한시각 파일/디렉토리이름
-        printf("%s %3hd %s %s %10lld %s %s", stat_String, stat_nlink, pws->pw_name, grp->gr_name, stat_size, timebuf, list[i]);
-        if (S_ISLNK(getStat.st_mode))
-        {
-            int readSize;
-            char linkSource[SIZE];
-            if ((readSize = readlink(temp_forAbsolute, linkSource, SIZE)) > 0)
+            if (list[i][0] < 33 || list[i][0] > 126)
+                continue;
+            struct stat getStat;
+            strcpy(temp_forAbsolute, absolutePath);
+            strcat(temp_forAbsolute, "/");
+            strcat(temp_forAbsolute, list[i]);
+            lstat(temp_forAbsolute, &getStat);
+            check_type(stat_String, &getStat);
+            check_permission(stat_String, &getStat);
+            stat_nlink = (unsigned short)getStat.st_nlink;
+            stat_size = (long long)getStat.st_size;
+            pws = getpwuid(getStat.st_uid);
+            if (pws == NULL)
             {
-                linkSource[readSize] = '\0';
-                printf(" -> %s", linkSource);
+                continue;
             }
-            else
+            grp = getgrgid(getStat.st_gid);
+            if (grp == NULL)
             {
-                printf("error!");
+                continue;
             }
+            t = getStat.st_mtime;
+            localtime_r(&t, &lt);
+            strftime(timebuf, sizeof(timebuf), "%Y-%m-%d %H:%M", &lt);
+            //각 멤버의 타입/권한 링크수 사용자이름 사용자그룹 파일크기 수정한시각 파일/디렉토리이름
+            printf("%s %3hd %s %s %10lld %s %s", stat_String, stat_nlink, pws->pw_name, grp->gr_name, stat_size, timebuf, list[i]);
+            if (S_ISLNK(getStat.st_mode))
+            {
+                int readSize;
+                char linkSource[SIZE];
+                if ((readSize = readlink(temp_forAbsolute, linkSource, SIZE)) > 0)
+                {
+                    linkSource[readSize] = '\0';
+                    printf(" -> %s", linkSource);
+                }
+                else
+                {
+                    printf("error!");
+                }
+            }
+            printf("\n");
         }
-        printf("\n");
     }
-    printf("\n");
-    int flag;
+    else{
+        for(i=0;i<list_size;i++)
+            printf("-????????? ? ? ? ? ? %s\n",list[i]);
+    }
+
+    int flag, flagForExecute;
     for (i = 0; i < list_size; i++)
     {
-        if(list[i][0]<33 || list[i][0] > 126)
-            continue;
         flag = 0;
+        flagForExecute = 0;
         struct stat getStat;
         strcpy(temp_forAbsolute, absolutePath);
         strcat(temp_forAbsolute, "/");
@@ -293,10 +304,18 @@ void printDirMembers(char *dirName)
                 flag = 1;
             if (flag == 1)
             {
-                printDirMembers(list[i]);
+                if (strcmp(pws->pw_name, myUserName) == 0 && getStat.st_mode & S_IXUSR)
+                    flagForExecute = 1;
+                else if (getStat.st_mode & S_IXOTH)
+                    flagForExecute = 1;
+                else if (isInGroup(myUserName, grp->gr_mem) && getStat.st_mode & S_IXGRP)
+                    flagForExecute = 1;
+                printf("\n");
+                printDirMembers(list[i], flagForExecute);
             }
-            else{
-                printf("ls: cannot open directory %s: Permission denied\n", list[i]);
+            else
+            {
+                printf("ls: cannot open directory %s: Permission denied\n", temp_forAbsolute);
             }
         }
     }
