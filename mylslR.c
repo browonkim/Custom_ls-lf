@@ -15,6 +15,7 @@
 #include <time.h>
 #include <ctype.h>
 #define SIZE 1024
+#define LINUXBLOCKSIZE 1024
 
 //helper functions
 void check_permission(char *permissionStatus, struct stat *statBuffer);
@@ -29,7 +30,6 @@ void printDirMembers(char *dirName);
 char dirPath[SIZE];
 char absolutePath[SIZE];
 char myUserName[SIZE];
-int todo;
 
 int main(int argc, char **argv)
 {
@@ -168,7 +168,7 @@ void printDirMembers(char *dirName)
             strcat(forCalcBlock, "/");
             strcat(forCalcBlock, rdir->d_name);
             lstat(forCalcBlock, &forCalcStat);
-            total += (long long) (forCalcStat.st_blocks / 2);
+            total += (long long) (forCalcStat.st_blocks / 2);   //st_blocks : 512byte blocks Centos/Ubuntu : 1024byte blocks
             if (list_size >= list_capacity)
             {
                 list_capacity *= 2;
@@ -233,8 +233,10 @@ void printDirMembers(char *dirName)
         printf("\n");
     }
     printf("\n");
+    int flag;
     for (i = 0; i < list_size; i++)
     {
+        flag = 0;
         struct stat getStat;
         strcpy(temp_forAbsolute, absolutePath);
         strcat(temp_forAbsolute, "/");
@@ -244,9 +246,25 @@ void printDirMembers(char *dirName)
         //그리고 소유자 이름이 같다면, 소유자에게 x 권한이 있는지 확인
         //x권한이 없다면 opendir이 불가능할테니 무시
         //소유자이름 -> 그룹이름 -> Others 조회 
+        pws = getpwuid(getStat.st_uid);
+        if (pws == NULL)
+        {
+            continue;
+        }
+        grp = getgrgid(getStat.st_gid);
+        if (grp == NULL)
+        {
+            continue;
+        }
         if (S_ISDIR(getStat.st_mode))
         {
+            if(strcmp(pws->pw_name, myUserName) == 0 && getStat.st_mode & S_IXUSR)
+                flag = 1;
+            else if(getStat.st_mode & S_IXOTH)
+                flag = 1;
+            if(flag == 1){
             printDirMembers(list[i]);
+            }
         }
     }
     free(list);
