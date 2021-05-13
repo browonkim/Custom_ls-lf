@@ -216,6 +216,8 @@ void printDirMembers(char *dirName)
     char timebuf[100];
     for (i = 0; i < list_size; i++)
     {
+        if(list[i][0]<33 || list[i][0] > 126)
+            continue;
         struct stat getStat;
         strcpy(temp_forAbsolute, absolutePath);
         strcat(temp_forAbsolute, "/");
