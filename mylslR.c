@@ -14,6 +14,7 @@
 #include <grp.h>
 #include <time.h>
 #include <ctype.h>
+#include <locale.h>
 #define SIZE 1024
 #define LINUXBLOCKSIZE 1024
 
@@ -33,6 +34,7 @@ char myUserName[SIZE];
 
 int main(int argc, char **argv)
 {
+    setlocale(LC_ALL, "en_US.utf8");
     getlogin_r(myUserName, SIZE);
     printDirMembers(NULL);
     return 0;
