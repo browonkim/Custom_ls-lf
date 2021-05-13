@@ -134,7 +134,7 @@ void printDirMembers(char *dirName, int executePermission)
 {
     char absolutePrev[SIZE];
     char prevPath[SIZE];
-    
+
     if (dirName == NULL)
     {
         strcpy(prevPath, "");
@@ -255,7 +255,17 @@ void printDirMembers(char *dirName, int executePermission)
             localtime_r(&t, &lt);
             strftime(timebuf, sizeof(timebuf), "%Y-%m-%d %H:%M", &lt);
             //각 멤버의 타입/권한 링크수 사용자이름 사용자그룹 파일크기 수정한시각 파일/디렉토리이름
-            printf("%s %3hd %s %s %10lld %s %s", stat_String, stat_nlink, pws->pw_name, grp->gr_name, stat_size, timebuf, list[i]);
+            if (S_ISCHR(getStat.st_mode) || S_ISBLK(getStat.st_mode))
+            {
+                int32_t majorDevNum, minorDevNum;
+                majorDevNum = major(getStat.st_rdev);
+                minorDevNum = minor(getStat.st_rdev);
+                printf("%s %3hd %s %s %5d, %5d %s %s", stat_String, stat_nlink, pws->pw_name, grp->gr_name, majorDevNum, minorDevNum, timebuf, list[i]);
+            }
+            else
+            {
+                printf("%s %3hd %s %s %12lld %s %s", stat_String, stat_nlink, pws->pw_name, grp->gr_name, stat_size, timebuf, list[i]);
+            }
             if (S_ISLNK(getStat.st_mode))
             {
                 int readSize;
@@ -273,9 +283,10 @@ void printDirMembers(char *dirName, int executePermission)
             printf("\n");
         }
     }
-    else{
-        for(i=0;i<list_size;i++)
-            printf("-????????? ? ? ? ? ? %s\n",list[i]);
+    else
+    {
+        for (i = 0; i < list_size; i++)
+            printf("-????????? ? ? ? ? ? %s\n", list[i]);
     }
 
     int flag, flagForExecute;
