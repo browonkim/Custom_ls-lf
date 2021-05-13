@@ -20,9 +20,9 @@
 //helper functions
 void check_permission(char *permissionStatus, struct stat *statBuffer);
 void check_type(char *typeStatus, struct stat *statBuffer);
+int compare(char *s1, char *s2);
 void sort(char **list, int list_size);
-void help_printDirMembers(char *dirName);
-
+int isInGroup(char *username, char **groupList);
 //primary function
 void printDirMembers(char *dirName);
 
@@ -33,7 +33,7 @@ char myUserName[SIZE];
 
 int main(int argc, char **argv)
 {
-    getlogin_r(myUserName, SIZE); 
+    getlogin_r(myUserName, SIZE);
     printDirMembers(NULL);
     return 0;
 }
@@ -76,35 +76,54 @@ int compare(char *s1, char *s2)
     int s2_length = strlen(s2);
     int min = s1_length < s2_length ? s1_length : s2_length;
     int i, result;
-    for(i=0;i<min;i++){
-        if(tolower(s1[i]) > tolower(s2[i])){
+    for (i = 0; i < min; i++)
+    {
+        if (tolower(s1[i]) > tolower(s2[i]))
+        {
             return 1;
         }
-        else if(tolower(s1[i]) < tolower(s2[i])){
+        else if (tolower(s1[i]) < tolower(s2[i]))
+        {
             return -1;
         }
     }
-    if(min == s1_length && s1_length != s2_length)
+    if (min == s1_length && s1_length != s2_length)
         return -1;
-    else if(min == s2_length && s1_length != s2_length)
+    else if (min == s2_length && s1_length != s2_length)
         return 1;
     else
         return 0;
 }
 
 //insertion Sort
-void sort(char** list, int list_size){
+void sort(char **list, int list_size)
+{
     int i, j;
-    char* key;
-    for(i=1;i<list_size;i++){
+    char *key;
+    for (i = 1; i < list_size; i++)
+    {
         key = list[i];
-        j = i-1;
-        while(j>=0 && compare(list[j], key)==1){
-            list[j+1] = list[j];
-            j = j-1;
+        j = i - 1;
+        while (j >= 0 && compare(list[j], key) == 1)
+        {
+            list[j + 1] = list[j];
+            j = j - 1;
         }
-        list[j+1] = key;
+        list[j + 1] = key;
     }
+}
+
+int isInGroup(char *username, char **groupList)
+{
+    int i;
+    for(i=0;groupList[i]!=NULL;i++)
+    {
+        if (strcmp(username, groupList[i]) == 0)
+        {
+            return 1;
+        }
+    }
+    return 0;
 }
 
 //DFS
@@ -168,7 +187,7 @@ void printDirMembers(char *dirName)
             strcat(forCalcBlock, "/");
             strcat(forCalcBlock, rdir->d_name);
             lstat(forCalcBlock, &forCalcStat);
-            total += (long long) (forCalcStat.st_blocks / 2);   //st_blocks : 512byte blocks Centos/Ubuntu : 1024byte blocks
+            total += (long long)(forCalcStat.st_blocks / 2); //st_blocks : 512byte blocks Centos/Ubuntu : 1024byte blocks
             if (list_size >= list_capacity)
             {
                 list_capacity *= 2;
@@ -177,10 +196,10 @@ void printDirMembers(char *dirName)
             }
         }
     }
-    
+
     printf("%s:\n", dirPath);
     printf("total %lld\n", total);
-    
+
     sort(list, list_size);
 
     int i;
@@ -219,14 +238,17 @@ void printDirMembers(char *dirName)
         strftime(timebuf, sizeof(timebuf), "%Y-%m-%d %H:%M", &lt);
         //각 멤버의 타입/권한 링크수 사용자이름 사용자그룹 파일크기 수정한시각 파일/디렉토리이름
         printf("%s %3hd %s %s %10lld %s %s", stat_String, stat_nlink, pws->pw_name, grp->gr_name, stat_size, timebuf, list[i]);
-        if(S_ISLNK(getStat.st_mode)){
+        if (S_ISLNK(getStat.st_mode))
+        {
             int readSize;
             char linkSource[SIZE];
-            if((readSize = readlink(temp_forAbsolute, linkSource, SIZE)) > 0){
+            if ((readSize = readlink(temp_forAbsolute, linkSource, SIZE)) > 0)
+            {
                 linkSource[readSize] = '\0';
                 printf(" -> %s", linkSource);
             }
-            else{
+            else
+            {
                 printf("error!");
             }
         }
@@ -242,10 +264,6 @@ void printDirMembers(char *dirName)
         strcat(temp_forAbsolute, "/");
         strcat(temp_forAbsolute, list[i]);
         lstat(temp_forAbsolute, &getStat);
-        //디렉토리의 소유자이름(혹은 id), 그룹이름과 현재유저,유저의그룹과 비교를 하자
-        //그리고 소유자 이름이 같다면, 소유자에게 x 권한이 있는지 확인
-        //x권한이 없다면 opendir이 불가능할테니 무시
-        //소유자이름 -> 그룹이름 -> Others 조회 
         pws = getpwuid(getStat.st_uid);
         if (pws == NULL)
         {
@@ -258,12 +276,15 @@ void printDirMembers(char *dirName)
         }
         if (S_ISDIR(getStat.st_mode))
         {
-            if(strcmp(pws->pw_name, myUserName) == 0 && getStat.st_mode & S_IXUSR)
+            if (strcmp(pws->pw_name, myUserName) == 0 && getStat.st_mode & S_IXUSR)
                 flag = 1;
-            else if(getStat.st_mode & S_IXOTH)
+            else if (getStat.st_mode & S_IXOTH)
                 flag = 1;
-            if(flag == 1){
-            printDirMembers(list[i]);
+            else if (isInGroup(myUserName, grp->gr_mem))
+                flag = 1;
+            if (flag == 1)
+            {
+                printDirMembers(list[i]);
             }
         }
     }
