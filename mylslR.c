@@ -186,13 +186,11 @@ void printDirMembers(char *dirName, int executePermission)
             continue; //숨김파일및디렉토리 . .. .git .gitignore .vim 등등
         else
         {
-            if(rdir->d_name[0] >= 32 && rdir->d_name[0] <= 126){
-                list[list_size] = rdir->d_name;
-                list_size++;
-                strcpy(forCalcBlock, absolutePath);
-                strcat(forCalcBlock, "/");
-                strcat(forCalcBlock, rdir->d_name);
-            }
+            list[list_size] = rdir->d_name;
+            list_size++;
+            strcpy(forCalcBlock, absolutePath);
+            strcat(forCalcBlock, "/");
+            strcat(forCalcBlock, rdir->d_name);
             if (executePermission)
             {
                 lstat(forCalcBlock, &forCalcStat);
@@ -232,13 +230,15 @@ void printDirMembers(char *dirName, int executePermission)
     {
         for (i = 0; i < list_size; i++)
         {
+            pws = NULL;
+            grp = NULL;
             if (list[i][0] < 33 || list[i][0] > 126)
                 continue;
             struct stat getStat;
             strcpy(temp_forAbsolute, absolutePath);
             strcat(temp_forAbsolute, "/");
             strcat(temp_forAbsolute, list[i]);
-            lstat(temp_forAbsolute, &getStat);
+            if(lstat(temp_forAbsolute, &getStat) < 0) continue;
             check_type(stat_String, &getStat);
             check_permission(stat_String, &getStat);
             stat_nlink = (unsigned short)getStat.st_nlink;
