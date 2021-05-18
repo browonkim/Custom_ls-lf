@@ -161,7 +161,7 @@ void printDirMembers(char *dirName, int executePermission)
     DIR *dir = opendir(absolutePath);
     if (dir == NULL)
     {
-        printf("ERROR!! I GUESS THIS IS FILE NAME ERROR!\n");
+        fprintf(stderr, "ERROR!! I GUESS THIS IS FILE NAME ERROR!\n");
         strcpy(absolutePath, absolutePrev);
         strcpy(dirPath, prevPath);
         return;
@@ -171,7 +171,7 @@ void printDirMembers(char *dirName, int executePermission)
     char **list = (char **)malloc(sizeof(char *) * list_capacity);
     if (list == NULL)
     {
-        printf("ERROR! malloc FAILED!\n");
+        fprintf(stderr, "ERROR! malloc FAILED!\n");
         exit(1);
     }
 
@@ -201,7 +201,7 @@ void printDirMembers(char *dirName, int executePermission)
                 strcpy(tempForDirPath, dirPath);
                 strcat(tempForDirPath, "/");
                 strcat(tempForDirPath, rdir->d_name);
-                printf("ls: cannot access %s: Permission denied\n", tempForDirPath);
+                fprintf(stderr, "ls: cannot access %s: Permission denied\n", tempForDirPath);
             }
             if (list_size >= list_capacity)
             {
@@ -212,7 +212,7 @@ void printDirMembers(char *dirName, int executePermission)
         }
     }
 
-    printf("total %lld\n", total);
+    fprintf(stdout, "total %lld\n", total);
 
     sort(list, list_size);
 
@@ -260,11 +260,11 @@ void printDirMembers(char *dirName, int executePermission)
                 int32_t majorDevNum, minorDevNum;
                 majorDevNum = major(getStat.st_rdev);
                 minorDevNum = minor(getStat.st_rdev);
-                printf("%s %3hd %s %s %5d, %5d %s %s", stat_String, stat_nlink, pws->pw_name, grp->gr_name, majorDevNum, minorDevNum, timebuf, list[i]);
+                fprintf(stdout, "%s %3hd %s %s %5d, %5d %s %s", stat_String, stat_nlink, pws->pw_name, grp->gr_name, majorDevNum, minorDevNum, timebuf, list[i]);
             }
             else
             {
-                printf("%s %3hd %s %s %12lld %s %s", stat_String, stat_nlink, pws->pw_name, grp->gr_name, stat_size, timebuf, list[i]);
+                fprintf(stdout, "%s %3hd %s %s %12lld %s %s", stat_String, stat_nlink, pws->pw_name, grp->gr_name, stat_size, timebuf, list[i]);
             }
             if (S_ISLNK(getStat.st_mode))
             {
@@ -273,20 +273,20 @@ void printDirMembers(char *dirName, int executePermission)
                 if ((readSize = readlink(temp_forAbsolute, linkSource, SIZE)) > 0)
                 {
                     linkSource[readSize] = '\0';
-                    printf(" -> %s", linkSource);
+                    fprintf(stdout, " -> %s", linkSource);
                 }
                 else
                 {
-                    printf("error!");
+                    //printf("error!");
                 }
             }
-            printf("\n");
+            fprintf(stdout, "\n");
         }
     }
     else
     {
         for (i = 0; i < list_size; i++)
-            printf("-????????? ? ? ? ? ? %s\n", list[i]);
+            fprintf(stdout, "-????????? ? ? ? ? ? %s\n", list[i]);
     }
 
     int flag, flagForExecute;
@@ -333,7 +333,7 @@ void printDirMembers(char *dirName, int executePermission)
                 strcpy(tempForDirPath, dirPath);
                 strcat(tempForDirPath, "/");
                 strcat(tempForDirPath, list[i]);
-                printf("ls: cannot open directory %s: Permission denied\n", tempForDirPath);
+                fprintf(stderr, "ls: cannot open directory %s: Permission denied\n", tempForDirPath);
             }
         }
     }
