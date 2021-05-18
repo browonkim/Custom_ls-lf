@@ -162,7 +162,7 @@ void printDirMembers(char *dirName, int executePermission)
     if (dir == NULL)
     {
         fprintf(stderr, "ERROR!! I GUESS THIS IS FILE NAME ERROR!\n");
-        fprintf(stderr, "<%s>", absolutePath);
+        fprintf(stderr, "<%s>\n", absolutePath);
         strcpy(absolutePath, absolutePrev);
         strcpy(dirPath, prevPath);
         return;
@@ -307,7 +307,12 @@ void printDirMembers(char *dirName, int executePermission)
         strcpy(temp_forAbsolute, absolutePath);
         strcat(temp_forAbsolute, "/");
         strcat(temp_forAbsolute, list[i]);
-        lstat(temp_forAbsolute, &getStat);
+        if(lstat(temp_forAbsolute, &getStat) < 0) 
+        {
+            //DEBUG
+            fprintf(stderr, "lstat error: %s\n", temp_forAbsolute);
+            continue;
+        }
         pws = getpwuid(getStat.st_uid);
         if (pws == NULL)
         {
