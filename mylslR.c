@@ -207,7 +207,11 @@ void printDirMembers(char *dirName, int executePermission)
             {
                 list_capacity *= 2;
                 if ((list = (char **)realloc(list, sizeof(char *) * list_capacity)) == NULL)
+                {
+                    fprintf(stderr, "realloc Error!\n");
                     exit(1);
+
+                }
             }
         }
     }
