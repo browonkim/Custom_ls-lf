@@ -300,8 +300,6 @@ void printDirMembers(char *dirName, int executePermission)
     {
         if(list[i][0] < 32 || list[i][0] > 126)
             continue;
-        pws = NULL;
-        grp = NULL;
         flag = 0;
         flagForExecute = 0;
         struct stat getStat;
