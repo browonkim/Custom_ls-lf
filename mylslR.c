@@ -193,8 +193,8 @@ void printDirMembers(char *dirName, int executePermission)
             strcat(forCalcBlock, rdir->d_name);
             if (executePermission)
             {
-                lstat(forCalcBlock, &forCalcStat);
-                total += (long long)(forCalcStat.st_blocks / 2); //st_blocks : 512byte blocks Centos/Ubuntu : 1024byte blocks
+                if(lstat(forCalcBlock, &forCalcStat) >= 0)
+                    total += (long long)(forCalcStat.st_blocks / 2); //st_blocks : 512byte blocks Centos/Ubuntu : 1024byte blocks
             }
             else
             {
@@ -232,8 +232,6 @@ void printDirMembers(char *dirName, int executePermission)
         {
             pws = NULL;
             grp = NULL;
-            if (list[i][0] < 33 || list[i][0] > 126)
-                continue;
             struct stat getStat;
             strcpy(temp_forAbsolute, absolutePath);
             strcat(temp_forAbsolute, "/");
@@ -294,13 +292,15 @@ void printDirMembers(char *dirName, int executePermission)
     int flag, flagForExecute;
     for (i = 0; i < list_size; i++)
     {
+        pws = NULL;
+        grp = NULL;
         flag = 0;
         flagForExecute = 0;
         struct stat getStat;
         strcpy(temp_forAbsolute, absolutePath);
         strcat(temp_forAbsolute, "/");
         strcat(temp_forAbsolute, list[i]);
-        lstat(temp_forAbsolute, &getStat);
+        if(lstat(temp_forAbsolute, &getStat) < 0) continue;
         pws = getpwuid(getStat.st_uid);
         if (pws == NULL)
         {
