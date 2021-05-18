@@ -346,6 +346,7 @@ void printDirMembers(char *dirName, int executePermission)
         }
     }
     free(list);
+    closedir(dir);
     strcpy(absolutePath, absolutePrev);
     strcpy(dirPath, prevPath);
     return;
