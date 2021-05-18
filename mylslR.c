@@ -1,7 +1,7 @@
 // 시스템 프로그래밍/ 2021/ ls -Rl programming
 // B735137/ 김형원
 
-#define DEBUG
+// #define DEBUG
 
 #include <sys/stat.h>
 #include <stdio.h>
@@ -161,8 +161,10 @@ void printDirMembers(char *dirName, int executePermission)
     DIR *dir = opendir(absolutePath);
     if (dir == NULL)
     {
+#ifdef DEBUG
         fprintf(stderr, "ERROR!! I GUESS THIS IS FILE NAME ERROR!\n");
         fprintf(stderr, "<%s>\n", absolutePath);
+#endif
         strcpy(absolutePath, absolutePrev);
         strcpy(dirPath, prevPath);
         return;
@@ -194,7 +196,7 @@ void printDirMembers(char *dirName, int executePermission)
             strcat(forCalcBlock, rdir->d_name);
             if (executePermission)
             {
-                if(lstat(forCalcBlock, &forCalcStat) >= 0)
+                if (lstat(forCalcBlock, &forCalcStat) >= 0)
                     total += (long long)(forCalcStat.st_blocks / 2); //st_blocks : 512byte blocks Centos/Ubuntu : 1024byte blocks
             }
             else
@@ -211,7 +213,6 @@ void printDirMembers(char *dirName, int executePermission)
                 {
                     fprintf(stderr, "realloc Error!\n");
                     exit(1);
-
                 }
             }
         }
@@ -235,7 +236,7 @@ void printDirMembers(char *dirName, int executePermission)
     {
         for (i = 0; i < list_size; i++)
         {
-            if(list[i][0] < 32 || list[i][0] > 126)
+            if (list[i][0] < 32 || list[i][0] > 126)
                 continue;
             pws = NULL;
             grp = NULL;
@@ -243,7 +244,8 @@ void printDirMembers(char *dirName, int executePermission)
             strcpy(temp_forAbsolute, absolutePath);
             strcat(temp_forAbsolute, "/");
             strcat(temp_forAbsolute, list[i]);
-            if(lstat(temp_forAbsolute, &getStat) < 0) continue;
+            if (lstat(temp_forAbsolute, &getStat) < 0)
+                continue;
             check_type(stat_String, &getStat);
             check_permission(stat_String, &getStat);
             stat_nlink = (unsigned short)getStat.st_nlink;
@@ -299,7 +301,7 @@ void printDirMembers(char *dirName, int executePermission)
     int flag, flagForExecute;
     for (i = 0; i < list_size; i++)
     {
-        if(list[i][0] < 32 || list[i][0] > 126)
+        if (list[i][0] < 32 || list[i][0] > 126)
             continue;
         flag = 0;
         flagForExecute = 0;
@@ -307,10 +309,11 @@ void printDirMembers(char *dirName, int executePermission)
         strcpy(temp_forAbsolute, absolutePath);
         strcat(temp_forAbsolute, "/");
         strcat(temp_forAbsolute, list[i]);
-        if(lstat(temp_forAbsolute, &getStat) < 0) 
+        if (lstat(temp_forAbsolute, &getStat) < 0)
         {
-            //DEBUG
+#ifdef DEBUG
             fprintf(stderr, "lstat error: %s\n", temp_forAbsolute);
+#endif
             continue;
         }
         pws = getpwuid(getStat.st_uid);
