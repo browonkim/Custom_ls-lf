@@ -304,7 +304,7 @@ void printDirMembers(char *dirName, int executePermission)
         strcpy(temp_forAbsolute, absolutePath);
         strcat(temp_forAbsolute, "/");
         strcat(temp_forAbsolute, list[i]);
-        if(lstat(temp_forAbsolute, &getStat) < 0) continue;
+        lstat(temp_forAbsolute, &getStat);
         pws = getpwuid(getStat.st_uid);
         if (pws == NULL)
         {
