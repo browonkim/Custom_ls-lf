@@ -294,6 +294,8 @@ void printDirMembers(char *dirName, int executePermission)
     int flag, flagForExecute;
     for (i = 0; i < list_size; i++)
     {
+        if(list[i][0] < 32 || list[i][0] > 126)
+            continue;
         pws = NULL;
         grp = NULL;
         flag = 0;
