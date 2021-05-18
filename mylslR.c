@@ -186,7 +186,7 @@ void printDirMembers(char *dirName, int executePermission)
             continue; //숨김파일및디렉토리 . .. .git .gitignore .vim 등등
         else
         {
-            if(rdir->d_name[0] >= 32 && rdir->d_name <= 126){
+            if(rdir->d_name[0] >= 32 && rdir->d_name[0] <= 126){
                 list[list_size] = rdir->d_name;
                 list_size++;
                 strcpy(forCalcBlock, absolutePath);
