@@ -15,7 +15,7 @@
 #include <time.h>
 #include <ctype.h>
 #include <locale.h>
-#define SIZE 1024
+#define SIZE 4096
 #define LINUXBLOCKSIZE 1024
 
 #include <wchar.h>
@@ -162,6 +162,7 @@ void printDirMembers(char *dirName, int executePermission)
     if (dir == NULL)
     {
         fprintf(stderr, "ERROR!! I GUESS THIS IS FILE NAME ERROR!\n");
+        fprintf(stderr, "<%s>", absolutePath);
         strcpy(absolutePath, absolutePrev);
         strcpy(dirPath, prevPath);
         return;
